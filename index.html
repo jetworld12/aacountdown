@@ -4,13 +4,19 @@
   <meta charset="UTF-8" />
   <title>UTC Countdown</title>
   <style>
-    body {
+    html, body {
+      margin: 0;
+      padding: 0;
       background-color: black;
       color: white;
       font-family: monospace;
       text-align: center;
       font-size: 2em;
-      padding-top: 50px;
+      height: 100%;
+      width: 100%;
+    }
+    #countdown {
+      padding-top: 40px;
     }
   </style>
 </head>
@@ -18,7 +24,7 @@
   <div id="countdown">Loading...</div>
 
   <script>
-    const target = new Date(Date.UTC(2025, 6, 14, 0, 0, 0)); // July 14, 2025 at 00:00 UTC
+    const target = new Date(Date.UTC(2025, 6, 14, 0, 0, 0)); // July 14, 2025 UTC
 
     function update() {
       const now = new Date();
