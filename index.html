@@ -4,47 +4,43 @@
   <meta charset="UTF-8" />
   <title>UTC Countdown</title>
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
+    body {
       background-color: black;
       color: white;
       font-family: monospace;
       text-align: center;
       font-size: 2em;
-      height: 100%;
-      width: 100%;
-    }
-    #countdown {
-      padding-top: 40px;
+      padding-top: 50px;
     }
   </style>
 </head>
 <body>
-  <div id="countdown">Loading...</div>
+  <div id="countdown">--:--:--:--</div>
 
   <script>
-    const target = new Date(Date.UTC(2025, 6, 14, 0, 0, 0)); // July 14, 2025 UTC
+    const targetUTC = new Date(Date.UTC(2025, 6, 14, 0, 0, 0)); // July 14, 2025
 
-    function update() {
+    function updateCountdown() {
       const now = new Date();
-      const diff = target - now;
+      const diff = targetUTC - now;
 
       if (diff <= 0) {
-        document.getElementById("countdown").textContent = "00:00:00";
+        document.getElementById("countdown").textContent = "00:00:00:00";
         return;
       }
 
       const totalSeconds = Math.floor(diff / 1000);
-      const hrs = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-      const mins = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
-      const secs = String(totalSeconds % 60).padStart(2, '0');
+      const days = String(Math.floor(totalSeconds / (3600 * 24))).padStart(2, '0');
+      const hours = String(Math.floor((totalSeconds % (3600 * 24)) / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+      const seconds = String(totalSeconds % 60).padStart(2, '0');
 
-      document.getElementById("countdown").textContent = `${hrs}:${mins}:${secs}`;
+      document.getElementById("countdown").textContent =
+        `${days}:${hours}:${minutes}:${seconds}`;
     }
 
-    setInterval(update, 1000);
-    update();
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
   </script>
 </body>
 </html>
