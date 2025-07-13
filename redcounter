@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>UTC 30-Day Countdown</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin-top: 50px;
+  }
+  #countdown {
+    font-size: 2em;
+    font-weight: bold;
+    color: black;
+    transition: color 0.1s linear;
+  }
+</style>
+</head>
+<body>
+
+<h1>30-Day UTC Countdown</h1>
+<div id="countdown">Loading...</div>
+
+<script>
+// key in localStorage
+const STORAGE_KEY = 'utc_countdown_target';
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+
+function pad(num, len = 2) {
+    return String(num).padStart(len, '0');
+}
+
+// Initialize or retrieve target timestamp (UTC)
+let targetUtc = localStorage.getItem(STORAGE_KEY);
+
+if (!targetUtc) {
+    const nowUtc = Date.now();
+    targetUtc = nowUtc + THIRTY_DAYS_MS;
+    localStorage.setItem(STORAGE_KEY, targetUtc);
+} else {
+    targetUtc = Number(targetUtc);
+}
+
+const countdownEl = document.getElementById('countdown');
+let blink = false;
+
+function updateCountdown() {
+    const nowUtc = Date.now();
+    let diff = targetUtc - nowUtc;
+
+    if (diff < 0) {
+        countdownEl.textContent = "Time's up!";
+        countdownEl.style.color = "red";
+        clearInterval(intervalId);
+        return;
+    }
+
+    const days = Math.floor(diff / (24*60*60*1000));
+    diff %= 24*60*60*1000;
+    const hours = Math.floor(diff / (60*60*1000));
+    diff %= 60*60*1000;
+    const minutes = Math.floor(diff / (60*1000));
+    diff %= 60*1000;
+    const seconds = Math.floor(diff / 1000);
+    const ms = diff % 1000;
+
+    countdownEl.textContent =
+        `${pad(days)}d `
+        + `${pad(hours)}h `
+        + `${pad(minutes)}m `
+        + `${pad(seconds)}s `
+        + `${pad(ms, 3)}ms`;
+
+    // blink effect
+    countdownEl.style.color = blink ? 'red' : 'black';
+    blink = !blink;
+}
+
+// update every ~100ms for visible blinking
+const intervalId = setInterval(updateCountdown, 100);
+updateCountdown();
+</script>
+
+</body>
+</html>
