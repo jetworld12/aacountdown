@@ -1,86 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>UTC 30-Day Countdown</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    margin-top: 50px;
-  }
-  #countdown {
-    font-size: 2em;
-    font-weight: bold;
-    color: black;
-    transition: color 0.1s linear;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <title>UTC Blinking Red Countdown</title>
+  <style>
+    body {
+      background-color: black;
+      color: red;
+      font-family: monospace;
+      text-align: center;
+      font-size: 2em;
+      padding-top: 50px;
+      transition: opacity 0.1s linear;
+    }
+  </style>
 </head>
 <body>
+  <div id="countdown">--:--:--:--:---</div>
 
-<h1>30-Day UTC Countdown</h1>
-<div id="countdown">Loading...</div>
+  <script>
+    const STORAGE_KEY = 'redcounter_target';
+    const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
-<script>
-// key in localStorage
-const STORAGE_KEY = 'utc_countdown_target';
-const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+    let targetUTC = localStorage.getItem(STORAGE_KEY);
 
-function pad(num, len = 2) {
-    return String(num).padStart(len, '0');
-}
-
-// Initialize or retrieve target timestamp (UTC)
-let targetUtc = localStorage.getItem(STORAGE_KEY);
-
-if (!targetUtc) {
-    const nowUtc = Date.now();
-    targetUtc = nowUtc + THIRTY_DAYS_MS;
-    localStorage.setItem(STORAGE_KEY, targetUtc);
-} else {
-    targetUtc = Number(targetUtc);
-}
-
-const countdownEl = document.getElementById('countdown');
-let blink = false;
-
-function updateCountdown() {
-    const nowUtc = Date.now();
-    let diff = targetUtc - nowUtc;
-
-    if (diff < 0) {
-        countdownEl.textContent = "Time's up!";
-        countdownEl.style.color = "red";
-        clearInterval(intervalId);
-        return;
+    if (!targetUTC) {
+      targetUTC = Date.now() + THIRTY_DAYS_MS;
+      localStorage.setItem(STORAGE_KEY, targetUTC);
+    } else {
+      targetUTC = Number(targetUTC);
     }
 
-    const days = Math.floor(diff / (24*60*60*1000));
-    diff %= 24*60*60*1000;
-    const hours = Math.floor(diff / (60*60*1000));
-    diff %= 60*60*1000;
-    const minutes = Math.floor(diff / (60*1000));
-    diff %= 60*1000;
-    const seconds = Math.floor(diff / 1000);
-    const ms = diff % 1000;
+    let blinkVisible = true;
 
-    countdownEl.textContent =
-        `${pad(days)}d `
-        + `${pad(hours)}h `
-        + `${pad(minutes)}m `
-        + `${pad(seconds)}s `
-        + `${pad(ms, 3)}ms`;
+    function updateCountdown() {
+      const now = Date.now();
+      const diff = targetUTC - now;
 
-    // blink effect
-    countdownEl.style.color = blink ? 'red' : 'black';
-    blink = !blink;
-}
+      if (diff <= 0) {
+        document.getElementById("countdown").textContent = "00:00:00:00:000";
+        return;
+      }
 
-// update every ~100ms for visible blinking
-const intervalId = setInterval(updateCountdown, 100);
-updateCountdown();
-</script>
+      const totalMs = diff;
+      const totalSeconds = Math.floor(totalMs / 1000);
 
+      const days = String(Math.floor(totalSeconds / (3600 * 24))).padStart(2, '0');
+      const hours = String(Math.floor((totalSeconds % (3600 * 24)) / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+      const seconds = String(totalSeconds % 60).padStart(2, '0');
+      const ms = String(totalMs % 1000).padStart(3, '0');
+
+      document.getElementById("countdown").textContent =
+        `${days}:${hours}:${minutes}:${seconds}:${ms}`;
+
+      document.body.style.opacity = blinkVisible ? '1' : '0.4';
+      blinkVisible = !blinkVisible;
+    }
+
+    setInterval(updateCountdown, 100);
+    updateCountdown();
+  </script>
 </body>
 </html>
