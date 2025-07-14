@@ -16,7 +16,6 @@
 
   #countdown {
     visibility: visible;
-    transition: visibility 0s linear;
   }
 </style>
 </head>
@@ -39,6 +38,7 @@
   const countdownEl = document.getElementById("countdown");
   let lastBlink = 0;
   let blinkVisible = true;
+  const BLINK_INTERVAL = 1100; // ms
 
   function updateCountdown() {
     const now = Date.now();
@@ -67,7 +67,7 @@
 
     if (!lastBlink) lastBlink = timestamp;
 
-    if (timestamp - lastBlink >= 500) {
+    if (timestamp - lastBlink >= BLINK_INTERVAL) {
       blinkVisible = !blinkVisible;
       countdownEl.style.visibility = blinkVisible ? 'visible' : 'hidden';
       lastBlink = timestamp;
