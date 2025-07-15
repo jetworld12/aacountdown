@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UTC Blinking Red Countdown</title>
+<title>UTC Countdown to August 14</title>
 <style>
   body {
     background-color: black;
@@ -28,30 +28,32 @@
 
 <script>
 (function () {
-  const STORAGE_KEY = 'redcounter_target';
-  const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
-
-  let targetUTC = localStorage.getItem(STORAGE_KEY);
-  if (!targetUTC) {
-    targetUTC = Date.now() + THIRTY_DAYS_MS;
-    localStorage.setItem(STORAGE_KEY, targetUTC);
-  } else {
-    targetUTC = Number(targetUTC);
-  }
-
   const countdownEl = document.getElementById("countdown");
   let lastBlink = 0;
   let blinkVisible = true;
   const BLINK_INTERVAL = 1100; // ms
 
+  // Define the target date: August 14 at 00:00:00 UTC of this year
+  const now = new Date();
+  let targetYear = now.getUTCFullYear();
+  const targetMonth = 7; // August (0-based, so 7)
+  const targetDay = 14;
+
+  const targetDate = new Date(Date.UTC(targetYear, targetMonth, targetDay, 0, 0, 0));
+
+  // If today is already August 14 or later, set to next year's August 14
+  if (now >= targetDate) {
+    targetDate.setUTCFullYear(targetYear + 1);
+  }
+
   function updateCountdown() {
-    const now = Date.now();
-    const diff = targetUTC - now;
+    const now = new Date();
+    const diff = targetDate - now;
 
     if (diff <= 0) {
       countdownEl.textContent = "00:00:00:00:000";
       countdownEl.style.visibility = 'visible';
-      return; // Stop blinking when done
+      return;
     }
 
     const totalMs = diff;
