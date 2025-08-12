@@ -26,13 +26,13 @@
 
 <script>
 (function () {
-  const START_KEY = "utc_10day_anchor_ms"; // single anchor ensures perfect sync
+  const START_KEY = "utc_10day_anchor_ms"; // shared anchor ensures perfect sync
   const TEN_DAYS_MS = 10 * 24 * 60 * 60 * 1000;
 
-  // Get or create a single UTC anchor
+  // Get or create single UTC start time
   let startMs = Number(localStorage.getItem(START_KEY)) || 0;
   if (!(startMs > 0)) {
-    startMs = Date.now();                    // epoch ms (UTC-safe)
+    startMs = Date.now();
     localStorage.setItem(START_KEY, String(startMs));
   }
   const endMs = startMs + TEN_DAYS_MS;
@@ -53,15 +53,15 @@
 
   function render() {
     const now = Date.now();
-    const up = Math.min(now - startMs, TEN_DAYS_MS);
-    const down = Math.max(endMs - now, 0);
+    const up = Math.min(now - startMs, TEN_DAYS_MS);   // time elapsed since start
+    const down = Math.max(endMs - now, 0);             // time remaining until end
 
     upEl.textContent = fmt(up);
     downEl.textContent = fmt(down);
 
     if (up < TEN_DAYS_MS) {
       requestAnimationFrame(render);
-    } // stop exactly at 10 days
+    }
   }
 
   requestAnimationFrame(render);
