@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UTC Countdown – 10 Days</title>
+<style>
+  body {
+    background: black;
+    margin: 0;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  #countdown {
+    color: #00ff00; /* green */
+    font-family: monospace, monospace;
+    font-size: 2em;
+  }
+</style>
+</head>
+<body>
+  <div id="countdown">--:--:--:--:---</div>
+
+<script>
+(function () {
+  const KEY = "utc_10day_end_ms";
+  const TEN_DAYS_MS = 10 * 24 * 60 * 60 * 1000;
+
+  // Ensure an end time exists and is in the future (UTC-safe via epoch ms)
+  let endMs = Number(localStorage.getItem(KEY)) || 0;
+  const now = Date.now();
+  if (!(endMs > now)) {
+    endMs = now + TEN_DAYS_MS;
+    localStorage.setItem(KEY, String(endMs));
+  }
+
+  const el = document.getElementById("countdown");
+
+  function render() {
+    const diff = endMs - Date.now();
+    if (diff <= 0) {
+      el.textContent = "00:00:00:00:000";
+      return; // stop updating when finished
+    }
+
+    const totalMs = diff;
+    const totalSec = Math.floor(totalMs / 1000);
+
+    const days = String(Math.floor(totalSec / 86400)).padStart(2, "0");
+    const hours = String(Math.floor((totalSec % 86400) / 3600)).padStart(2, "0");
+    const minutes = String(Math.floor((totalSec % 3600) / 60)).padStart(2, "0");
+    const seconds = String(totalSec % 60).padStart(2, "0");
+    const ms = String(totalMs % 1000).padStart(3, "0");
+
+    el.textContent = `${days}:${hours}:${minutes}:${seconds}:${ms}`;
+    requestAnimationFrame(render);
+  }
+
+  requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>
