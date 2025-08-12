@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UTC Count Up / Down – Ends at Launch Moment</title>
+<title>UTC Count Up / Down – 10 Days</title>
 <style>
   body {
     background: black;
@@ -26,41 +26,42 @@
 
 <script>
 (function () {
-  // Set END moment to exactly 10 days from now (UTC)
-  const nowUtc = new Date();
-  const endDate = new Date(nowUtc.getTime() + 10 * 24 * 60 * 60 * 1000);
-  const END_UTC_ISO = endDate.toISOString();
-
+  const START_KEY = "utc_10day_anchor_ms"; // single anchor ensures perfect sync
   const TEN_DAYS_MS = 10 * 24 * 60 * 60 * 1000;
-  const endMs = Date.parse(END_UTC_ISO);
-  const startMs = endMs - TEN_DAYS_MS;
+
+  // Get or create a single UTC anchor
+  let startMs = Number(localStorage.getItem(START_KEY)) || 0;
+  if (!(startMs > 0)) {
+    startMs = Date.now();                    // epoch ms (UTC-safe)
+    localStorage.setItem(START_KEY, String(startMs));
+  }
+  const endMs = startMs + TEN_DAYS_MS;
 
   const upEl = document.getElementById("countup");
   const downEl = document.getElementById("countdown");
 
   function fmt(ms) {
-    const clamped = Math.max(0, Math.min(ms, TEN_DAYS_MS));
-    const totalSec = Math.floor(clamped / 1000);
+    const totalMs = Math.max(0, Math.min(ms, TEN_DAYS_MS));
+    const totalSec = Math.floor(totalMs / 1000);
     const d = String(Math.floor(totalSec / 86400)).padStart(2, "0");
     const h = String(Math.floor((totalSec % 86400) / 3600)).padStart(2, "0");
     const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, "0");
     const s = String(totalSec % 60).padStart(2, "0");
-    const ms3 = String(clamped % 1000).padStart(3, "0");
+    const ms3 = String(totalMs % 1000).padStart(3, "0");
     return `${d}:${h}:${m}:${s}:${ms3}`;
   }
 
   function render() {
     const now = Date.now();
-
-    // Count-up: from startMs up to 10 days
-    const up = now <= startMs ? 0 : Math.min(now - startMs, TEN_DAYS_MS);
-    // Count-down: to endMs down to zero
-    const down = now >= endMs ? 0 : Math.max(endMs - now, 0);
+    const up = Math.min(now - startMs, TEN_DAYS_MS);
+    const down = Math.max(endMs - now, 0);
 
     upEl.textContent = fmt(up);
     downEl.textContent = fmt(down);
 
-    if (now < endMs) requestAnimationFrame(render); // stop exactly at end
+    if (up < TEN_DAYS_MS) {
+      requestAnimationFrame(render);
+    } // stop exactly at 10 days
   }
 
   requestAnimationFrame(render);
