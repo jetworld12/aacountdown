@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UTC Count Up / Down – Ends at Launch Moment</title>
+<style>
+  body {
+    background: black;
+    margin: 0;
+    height: 100vh; width: 100vw;
+    display: flex; justify-content: center; align-items: center;
+    color: #00ff00; /* green */
+    font-family: monospace, monospace;
+    font-size: 2em;
+  }
+  #row { display: flex; align-items: center; gap: 1em; }
+</style>
+</head>
+<body>
+  <div id="row">
+    <div id="countup">00:00:00:00:000</div>
+    <div>-</div>
+    <div id="countdown">10:00:00:00:000</div>
+  </div>
+
+<script>
+(function () {
+  // Set END moment to exactly 10 days from now (UTC)
+  const nowUtc = new Date();
+  const endDate = new Date(nowUtc.getTime() + 10 * 24 * 60 * 60 * 1000);
+  const END_UTC_ISO = endDate.toISOString();
+
+  const TEN_DAYS_MS = 10 * 24 * 60 * 60 * 1000;
+  const endMs = Date.parse(END_UTC_ISO);
+  const startMs = endMs - TEN_DAYS_MS;
+
+  const upEl = document.getElementById("countup");
+  const downEl = document.getElementById("countdown");
+
+  function fmt(ms) {
+    const clamped = Math.max(0, Math.min(ms, TEN_DAYS_MS));
+    const totalSec = Math.floor(clamped / 1000);
+    const d = String(Math.floor(totalSec / 86400)).padStart(2, "0");
+    const h = String(Math.floor((totalSec % 86400) / 3600)).padStart(2, "0");
+    const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, "0");
+    const s = String(totalSec % 60).padStart(2, "0");
+    const ms3 = String(clamped % 1000).padStart(3, "0");
+    return `${d}:${h}:${m}:${s}:${ms3}`;
+  }
+
+  function render() {
+    const now = Date.now();
+
+    // Count-up: from startMs up to 10 days
+    const up = now <= startMs ? 0 : Math.min(now - startMs, TEN_DAYS_MS);
+    // Count-down: to endMs down to zero
+    const down = now >= endMs ? 0 : Math.max(endMs - now, 0);
+
+    upEl.textContent = fmt(up);
+    downEl.textContent = fmt(down);
+
+    if (now < endMs) requestAnimationFrame(render); // stop exactly at end
+  }
+
+  requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>
